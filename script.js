@@ -12,6 +12,8 @@ let writefileAsync = util.promisify(fs.writeFile);
 let readFileAsync = util.promisify(fs.readFile);
 let objToHTML = [];
 
+let i = 0;
+
 function init() {
     console.log("Welcome to the team builder")
     staffQuestion();
@@ -32,11 +34,23 @@ function staffQuestion() {
                 case "Manager":
                     buildManager();
                     break;
-                default:
-                    buildHTML();
-                    break;
             }
         })
+}
+
+function addOrNot() {
+    inquirer.prompt(Questions.addAnother)
+    .then(function (ans) {
+        switch(ans.another) {
+            case "Yes":
+                staffQuestion();
+                break;
+
+                case "No":
+                    buildHTML();
+                    break;
+        }
+    })
 }
 
 function buildEngineer() {
@@ -44,7 +58,8 @@ function buildEngineer() {
         .then(function (data) {
             let tempObj = new Engineer(data.engineer, data.engineerID, data.engineerName, data.engineerEmail, data.engineerGitHub);
             objToHTML.push(tempObj);
-            staffQuestion();
+            console.log("Engineer added");
+            addOrNot();
         })
 }
 
@@ -53,7 +68,8 @@ function buildIntern() {
         .then(function (data) {
             let tempObj = new Intern(data.intern, data.internID, data.internName, data.internEmail, data.internSchool);
             objToHTML.push(tempObj);
-            staffQuestion();
+            console.log("Intern added");
+            addOrNot();
         })
 }
 
@@ -62,7 +78,8 @@ function buildManager() {
         .then(function (data) {
             let tempObj = new Manager(data.manager, data.managerID, data.managerName, data.managerEmail, data.managerNumber);
             objToHTML.push(tempObj);
-            staffQuestion();
+            console.log("Manager added");
+            addOrNot();
         })
 }
 
@@ -143,10 +160,10 @@ function addEngineer(employee) {
 
 function addEmployeeHTML() {
     if (i < objToHTML.length) {
-        member = objToHTML[i++];
-        if (member.getPosition() === "Manager") addManager(employee);
-        else if (member.getPosition() === "Engineer") addEngineer(employee);
-        else if (member.getPosition() === "Intern") addIntern(employee);
+        employee = objToHTML[i++];
+        if (employee.getRole() === "Manager") addManager(employee);
+        else if (employee.getRole() === "Engineer") addEngineer(employee);
+        else if (employee.getRole() === "Intern") addIntern(employee);
     } else {
         let html = fs.readFileSync("./templates/index.html", "utf8");
         writefileAsync(`./team.html`, html)
