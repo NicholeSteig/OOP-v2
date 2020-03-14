@@ -6,6 +6,7 @@ const Questions = require("./lib/Questions")
 const inquirer = require("inquirer");
 const fs = require("fs");
 const util = require("util");
+const cheerio = require("cheerio");
 
 function init() {
     console.log("Welcome to the team builder")
@@ -61,11 +62,74 @@ function buildManager() {
 function buildHTML() {
     let html = fs.readFileSync("./templates/index.html", "utf8");
     let $index = cheerio.load(html);
-    $index("#addMember").html("");
+    $index("#addEmployee").html("");
     writefileAsync("./templates/index.html", $index.html())
         .then(function () {
             addEmployeeHTML();
         })
+}
+
+function addManager(employee) {
+    let html = fs.readFileSync("./templates/manager.html", "utf8");
+    let $manager = cheerio.load(html);
+    readFileAsync("./templates/index.html", "utf8")
+    .then(function (data) {
+        let $index = cheerio.load(data);
+        $manager("#name").html(employee.getName());
+        $manager("#id").html(employee.getID());
+        $manager("#email").html(employee.getEmail());
+        $manager("#number").html(employee.getNumber());
+        $index("#addEmployee").append($manager.html());
+        writefileAsync("./templates/index.html", $index.html())
+        .then(function() {
+            console.log("Manager added");
+            addEmployeeHTML();
+        }, function (error) {
+            console.log(error);
+        });
+    });
+}
+
+function addIntern(employee) {
+    let html = fs.readFileSync("./templates/intern.html", "utf8");
+    let $intern = cheerio.load(html);
+    readFileAsync("./templates/index.html", "utf8")
+    .then(function (data) {
+        let $index = cheerio.load(data);
+        $intern("#name").html(employee.getName());
+        $intern("#id").html(employee.getID());
+        $intern("#email").html(employee.getEmail());
+        $intern("#school").html(employee.getSchool());
+        $index("#addEmployee").append($intern.html());
+        writefileAsync("./templates/index.html", $index.html())
+        .then(function() {
+            console.log("Intern added");
+            addEmployeeHTML();
+        }, function (error) {
+            console.log(error);
+        });
+    });
+}
+
+function addEngineer(employee) {
+    let html = fs.readFileSync("./templates/engineer.html", "utf8");
+    let $engineer = cheerio.load(html);
+    readFileAsync("./templates/index.html", "utf8")
+    .then(function (data) {
+        let $index = cheerio.load(data);
+        $engineer("#name").html(employee.getName());
+        $engineer("#id").html(employee.getID());
+        $engineer("#email").html(employee.getEmail());
+        $engineer("#school").html(employee.getSchool());
+        $index("#addEmployee").append($engineer.html());
+        writefileAsync("./templates/index.html", $index.html())
+        .then(function() {
+            console.log("Engineer added");
+            addEmployeeHTML();
+        }, function (error) {
+            console.log(error);
+        });
+    });
 }
 
 
