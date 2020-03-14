@@ -8,6 +8,10 @@ const fs = require("fs");
 const util = require("util");
 const cheerio = require("cheerio");
 
+let writefileAsync = util.promisify(fs.writeFile);
+let readFileAsync = util.promisify(fs.readFile);
+let objToHTML = [];
+
 function init() {
     console.log("Welcome to the team builder")
     staffQuestion();
@@ -28,6 +32,9 @@ function staffQuestion() {
                 case "Manager":
                     buildManager();
                     break;
+                default:
+                    buildHTML();
+                    break;
             }
         })
 }
@@ -37,7 +44,7 @@ function buildEngineer() {
         .then(function (data) {
             let tempObj = new Engineer(data.engineer, data.engineerID, data.engineerName, data.engineerEmail, data.engineerGitHub);
             objToHTML.push(tempObj);
-            buildStaff();
+            staffQuestion();
         })
 }
 
@@ -46,7 +53,7 @@ function buildIntern() {
         .then(function (data) {
             let tempObj = new Intern(data.intern, data.internID, data.internName, data.internEmail, data.internSchool);
             objToHTML.push(tempObj);
-            buildStaff();
+            staffQuestion();
         })
 }
 
@@ -55,7 +62,7 @@ function buildManager() {
         .then(function (data) {
             let tempObj = new Manager(data.manager, data.managerID, data.managerName, data.managerEmail, data.managerNumber);
             objToHTML.push(tempObj);
-            buildStaff();
+            staffQuestion();
         })
 }
 
@@ -73,63 +80,65 @@ function addManager(employee) {
     let html = fs.readFileSync("./templates/manager.html", "utf8");
     let $manager = cheerio.load(html);
     readFileAsync("./templates/index.html", "utf8")
-    .then(function (data) {
-        let $index = cheerio.load(data);
-        $manager("#name").html(employee.getName());
-        $manager("#id").html(employee.getID());
-        $manager("#email").html(employee.getEmail());
-        $manager("#number").html(employee.getNumber());
-        $index("#addEmployee").append($manager.html());
-        writefileAsync("./templates/index.html", $index.html())
-        .then(function() {
-            console.log("Manager added");
-            addEmployeeHTML();
-        }, function (error) {
-            console.log(error);
+        .then(function (data) {
+            let $index = cheerio.load(data);
+            $manager("#name").html(employee.getName());
+            $manager("#id").html(employee.getID());
+            $manager("#email").html(employee.getEmail());
+            $manager("#number").html(employee.getNumber());
+            $index("#addEmployee").append($manager.html());
+            writefileAsync("./templates/index.html", $index.html())
+                .then(function () {
+                    console.log("Manager added");
+                    addEmployeeHTML();
+                }, function (error) {
+                    console.log(error);
+                });
         });
-    });
 }
+
+staffQuestion
 
 function addIntern(employee) {
     let html = fs.readFileSync("./templates/intern.html", "utf8");
     let $intern = cheerio.load(html);
     readFileAsync("./templates/index.html", "utf8")
-    .then(function (data) {
-        let $index = cheerio.load(data);
-        $intern("#name").html(employee.getName());
-        $intern("#id").html(employee.getID());
-        $intern("#email").html(employee.getEmail());
-        $intern("#school").html(employee.getSchool());
-        $index("#addEmployee").append($intern.html());
-        writefileAsync("./templates/index.html", $index.html())
-        .then(function() {
-            console.log("Intern added");
-            addEmployeeHTML();
-        }, function (error) {
-            console.log(error);
+        .then(function (data) {
+            let $index = cheerio.load(data);
+            $intern("#name").html(employee.getName());
+            $intern("#id").html(employee.getID());
+            $intern("#email").html(employee.getEmail());
+            $intern("#school").html(employee.getSchool());
+            $index("#addEmployee").append($intern.html());
+            writefileAsync("./templates/index.html", $index.html())
+                .then(function () {
+                    console.log("Intern added");
+                    addEmployeeHTML();
+                }, function (error) {
+                    console.log(error);
+                });
         });
-    });
 }
 
 function addEngineer(employee) {
     let html = fs.readFileSync("./templates/engineer.html", "utf8");
     let $engineer = cheerio.load(html);
     readFileAsync("./templates/index.html", "utf8")
-    .then(function (data) {
-        let $index = cheerio.load(data);
-        $engineer("#name").html(employee.getName());
-        $engineer("#id").html(employee.getID());
-        $engineer("#email").html(employee.getEmail());
-        $engineer("#school").html(employee.getSchool());
-        $index("#addEmployee").append($engineer.html());
-        writefileAsync("./templates/index.html", $index.html())
-        .then(function() {
-            console.log("Engineer added");
-            addEmployeeHTML();
-        }, function (error) {
-            console.log(error);
+        .then(function (data) {
+            let $index = cheerio.load(data);
+            $engineer("#name").html(employee.getName());
+            $engineer("#id").html(employee.getID());
+            $engineer("#email").html(employee.getEmail());
+            $engineer("#school").html(employee.getSchool());
+            $index("#addEmployee").append($engineer.html());
+            writefileAsync("./templates/index.html", $index.html())
+                .then(function () {
+                    console.log("Engineer added");
+                    addEmployeeHTML();
+                }, function (error) {
+                    console.log(error);
+                });
         });
-    });
 }
 
 function addEmployeeHTML() {
@@ -141,16 +150,16 @@ function addEmployeeHTML() {
     } else {
         let html = fs.readFileSync("./templates/index.html", "utf8");
         writefileAsync(`./team.html`, html)
-        .then(function () {
-            readFileAsync("./templates/index.html", "utf8")
-            .then(async function(html) {
-                let $index = cheerio.load(html);
-                $index("#addEmployee").html("");
-                writefileAsync("./templates/index.html", $index.html())
+            .then(function () {
+                readFileAsync("./templates/index.html", "utf8")
+                    .then(async function (html) {
+                        let $index = cheerio.load(html);
+                        $index("#addEmployee").html("");
+                        writefileAsync("./templates/index.html", $index.html())
+                    });
+            }, function (err) {
+                if (err) throw err;
             });
-        }, function (err) {
-            if (err) throw err;
-        });
     }
 }
 
