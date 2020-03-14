@@ -132,6 +132,29 @@ function addEngineer(employee) {
     });
 }
 
+function addEmployeeHTML() {
+    if (i < objToHTML.length) {
+        member = objToHTML[i++];
+        if (member.getPosition() === "Manager") addManager(employee);
+        else if (member.getPosition() === "Engineer") addEngineer(employee);
+        else if (member.getPosition() === "Intern") addIntern(employee);
+    } else {
+        let html = fs.readFileSync("./templates/index.html", "utf8");
+        writefileAsync(`./team.html`, html)
+        .then(function () {
+            readFileAsync("./templates/index.html", "utf8")
+            .then(async function(html) {
+                let $index = cheerio.load(html);
+                $index("#addEmployee").html("");
+                writefileAsync("./templates/index.html", $index.html())
+            });
+        }, function (err) {
+            if (err) throw err;
+        });
+    }
+}
+
+init();
 
 // Employee:
 // * name
